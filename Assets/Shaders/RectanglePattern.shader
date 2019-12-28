@@ -1,11 +1,13 @@
-﻿Shader "Custom/CubePattern"
+﻿Shader "Custom/RectanglePattern"
 {
     Properties
     {
-        _Length("Length", Range(0, 1)) = 0.5
         _UVScale("UVScale", Range(1, 10)) = 2
-        [Toggle]_ShowDistance("Show Distance", Int) = 0
-        [Toggle]_UseBeveling("Use Beveling", Int) = 0
+        _Width("Width", Range(0, 1)) = 0.5
+        _Height("Height", Range(0, 1)) = 0.5
+        [Toggle]_ShowDistance("Show Distance(Exact Distance Field)", Int) = 0
+        [Header(Beveling Control)]
+        [Toggle]_UseBeveling("Use Beveling(Power default is 2, 2 is Euler distance)", Int) = 0
         _Power("Power", Range(0.1, 10)) = 2
         _BevelLength("Bevel Length", Range(0,1)) = 0.2
     }
@@ -23,6 +25,7 @@
             #pragma shader_feature _USEBEVELING_ON
 
             #include "UnityCG.cginc"
+            #include "FunctionUtil.cginc"
 
             struct appdata
             {
@@ -38,9 +41,10 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            half _Length;
             half _UVScale;
 
+            half _Width;
+            half _Height;
             half _Power;
             half _BevelLength;
 
@@ -52,20 +56,6 @@
                 return o;
             }
 
-            half3 pal( in float t, in half3 a, in half3 b, in half3 c, in half3 d ){
-                return a + b*cos( 6.28318*(c*t+d) );
-            }
-
-            half2 max2(half2 a, half2 b)
-            {
-                return half2(max(a.x, b.x), max(a.y,b.y));
-            }
-
-            half2 min2(half2 a, half2 b)
-            {
-                return half2(min(a.x, b.x), min(a.y,b.y));
-            }
-
             half4 frag (v2f i) : SV_Target
             {
                 half3 color = 0;
@@ -73,20 +63,20 @@
                 half dist = 0;
 
 #ifdef _USEBEVELING_ON
-                half bevel = min(_Length, _BevelLength);
-                half2 d = abs(i.uv) - _Length + bevel;
+                half bevel = min(min(_Height, _Width), _BevelLength);
+                half2 d = abs(i.uv) - half2(_Width, _Height) + bevel;
                 half2 outLen = max2( d, 0);
                 dist = pow( pow(outLen.x, _Power) + pow(outLen.y, _Power), 1/_Power) + min(max(d.x, d.y), 0) - bevel;
 #else
-                half2 d = abs(i.uv) - _Length;
+                half2 d = abs(i.uv) - half2(_Width, _Height);
                 dist = length(max2( d, 0))  + min(max(d.x, d.y), 0);
 #endif
 
 #ifdef _SHOWDISTANCE_ON
                 
-                color = pal( abs(dist), half3(0.5,0.5,0.5),half3(0.5,0.5,0.5),half3(1.0,1.0,1.0),half3(0.0,0.10,0.20) );;
+                color = pal( dist );
 #else
-                color = step(0, dist);
+                color = smoothstep(0, 0.02, dist);
 #endif
 
                 return half4(color, 1);

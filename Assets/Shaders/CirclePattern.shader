@@ -2,10 +2,11 @@
 {
     Properties
     {
-        _Radius("Redius", Range(0, 1)) = 0.5
         _UVScale("UVScale", Range(1, 10)) = 2
-        [Toggle]_ShowDistance("Show Distance", Int) = 0
-        [Toggle]_UsePower("Use Power", Int) = 0
+        _Radius("Redius", Range(0, 1)) = 0.5
+        [Toggle]_ShowDistance("Show Distance(Exact Distance Field)", Int) = 0
+        [Header(Power Control)]
+        [Toggle]_UsePower("Use Power(Power default is 2, 2 is Euler distance)", Int) = 0
         _Power("Power", Range(0.1, 10)) = 2
     }
     SubShader
@@ -22,6 +23,7 @@
             #pragma shader_feature _USEPOWER_ON
 
             #include "UnityCG.cginc"
+            #include "FunctionUtil.cginc"
 
             struct appdata
             {
@@ -37,9 +39,9 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            half _Radius;
             half _UVScale;
 
+            half _Radius;
             half _Power;
 
             v2f vert (appdata v)
@@ -48,10 +50,6 @@
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = (v.uv - half2(0.5, 0.5))*_UVScale;
                 return o;
-            }
-
-            half3 pal( in float t, in half3 a, in half3 b, in half3 c, in half3 d ){
-                return a + b*cos( 6.28318*(c*t+d) );
             }
 
             half4 frag (v2f i) : SV_Target
@@ -69,9 +67,9 @@
 
 #ifdef _SHOWDISTANCE_ON
                 
-                color = pal( abs(dist), half3(0.5,0.5,0.5),half3(0.5,0.5,0.5),half3(1.0,1.0,1.0),half3(0.0,0.10,0.20) );;
+                color = pal( dist );;
 #else
-                color = step(0, dist);
+                color = smoothstep(0, 0.02, dist);
 #endif
 
                 return half4(color, 1);
