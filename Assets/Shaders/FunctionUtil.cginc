@@ -24,4 +24,9 @@ half2 min2(half2 a, half2 b)
     return half2(min(a.x, b.x), min(a.y,b.y));
 }
 
+half crossValue(half2 vec1, half2 vec2)
+{
+    return vec1.x * vec2.y - vec1.y *vec2.x;
+}
+
 #endif
