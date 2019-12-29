@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: RectangleMat
   m_Shader: {fileID: 4800000, guid: 791f8016cf4121b48aff15ce5363ae7e, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _SHOWDISTANCE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -72,7 +72,7 @@ Material:
     - _Parallax: 0.02
     - _Power: 0.36
     - _Radius: 0.5
-    - _ShowDistance: 0
+    - _ShowDistance: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
