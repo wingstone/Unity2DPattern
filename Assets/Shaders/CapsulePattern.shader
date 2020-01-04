@@ -65,6 +65,11 @@
                 dist = pow(abs(i.uv.x), _Power) + pow(abs(i.uv.y), _Power);
                 dist = pow(dist, 1/_Power) - _Width;
 #else
+                /*********思路*********
+                精确距离场：
+                对X轴取对称，减去线的一半长度，直接计算圆的距离场即可；
+                原理：线上下方的距离场与两端距两端点的距离一样；
+                */
                 i.uv.x = max(abs(i.uv.x) - _Length, 0);
                 dist = length(i.uv) - _Width;
 #endif

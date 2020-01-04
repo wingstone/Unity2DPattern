@@ -61,7 +61,11 @@
                 half3 color = 0;
 
                 half dist = 0;
-
+                /*********思路*********
+                精确距离场：
+                直接计算当前点到三条线段的距离，取最小值即可获得绝对值距离场；
+                然后使用同向法判断当前点是否在三角形内，给绝对值距离场取正负即可；
+                */
                 half2 pp1 = _Point2 - _Point1;
                 half2 pp2 = _Point3 - _Point2;
                 half2 pp3 = _Point1 - _Point3;

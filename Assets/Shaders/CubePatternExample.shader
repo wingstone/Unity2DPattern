@@ -70,11 +70,21 @@
                 half2 outLen = max2( d, 0);
                 dist = pow( pow(outLen.x, _Power) + pow(outLen.y, _Power), 1/_Power) + min(max(d.x, d.y), 0) - bevel;
 #else
+                /*********思路*********
+                精确距离场：
+                外部距离场：length(max2( d, 0))：减去宽度后，分别取XY的正数，然后求距离；这样上下左右计算出到边的距离，其他为到角的距离；
+                内部距离场：min(max(d.x, d.y), 0)：减去宽度后，取负数距离的大值即可；
+                */
                 half2 d = abs(i.uv) - _Width;
                 dist = length(max2( d, 0))  + min(max(d.x, d.y), 0);
 #endif
 
 #else
+                /*********思路*********
+                非精确距离场：
+                外部距离场：max(max(d.x, d.y), 0)：减去宽度后，取正数距离的小值即可；
+                内部距离场：同上的内部距离场
+                */
                 half2 d = abs(i.uv) - _Width;
                 dist = max(max(d.x, d.y), 0)  + min(max(d.x, d.y), 0);
 #endif

@@ -58,6 +58,10 @@
 
                 half dist = 0;
 
+                /*********思路*********
+                精确距离场：
+                先计算当前点在线段上的投影点，超过线段范围投影至端点上，然后计算当前点都投影点的距离即可
+                */
                 half2 pp1 = _Point2 - _Point1;
                 half2 pv1 = i.uv - _Point1;
                 half projectFactor = clamp(dot(pp1, pv1)/dot(pp1,pp1), 0, 1);

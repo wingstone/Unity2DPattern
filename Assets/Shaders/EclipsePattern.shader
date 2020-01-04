@@ -66,6 +66,10 @@
                 dist = pow(abs(i.uv.x/_X), _Power) + pow(abs(i.uv.y/_Y), _Power);
                 dist = pow(dist, 1/_Power) - _Radius;
 #else
+                /*********思路*********
+                非精确距离场：
+                使用圆的计算方法，相当于对圆的距离场进行了拉伸；
+                */
                 half x = i.uv.x/_X;
                 half y = i.uv.y/_Y;
                 

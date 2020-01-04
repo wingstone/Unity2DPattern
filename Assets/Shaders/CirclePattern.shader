@@ -62,6 +62,10 @@
                 dist = pow(abs(i.uv.x), _Power) + pow(abs(i.uv.y), _Power);
                 dist = pow(dist, 1/_Power) - _Radius;
 #else
+                /*********思路*********
+                精确距离场：
+                直接计算圆的距离场即可
+                */
                 dist = length(i.uv) - _Radius;
 #endif
 

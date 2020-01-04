@@ -1,15 +1,14 @@
-﻿Shader "Custom/RectanglePattern"
+﻿Shader "Custom/RhombusPattern"
 {
     Properties
     {
         _UVScale("UVScale", Range(1, 10)) = 2
-        _Width("Width", Range(0, 1)) = 0.5
-        _Height("Height", Range(0, 1)) = 0.5
+        _FactorX("FactorX", Range(0, 1)) = 0.5
+        _FactorY("FactorY", Range(0, 1)) = 0.5
         [Toggle]_ShowDistance("Show Distance(Exact Distance Field)", Int) = 0
         [Header(Beveling Control)]
-        [Toggle]_UseBeveling("Use Beveling(Power default is 2, 2 is Euler distance)", Int) = 0
-        _Power("Power", Range(0.1, 10)) = 2
-        _BevelLength("Bevel Length", Range(0,1)) = 0.2
+        [Toggle]_UseBeveling("Use Beveling", Int) = 0
+        _BevelWidth("Bevel Width", Range(0,1)) = 0.2
     }
     SubShader
     {
@@ -43,10 +42,9 @@
             float4 _MainTex_ST;
             half _UVScale;
 
-            half _Width;
-            half _Height;
-            half _Power;
-            half _BevelLength;
+            half _FactorX;
+            half _FactorY;
+            half _BevelWidth;
 
             v2f vert (appdata v)
             {
@@ -61,20 +59,26 @@
                 half3 color = 0;
 
                 half dist = 0;
-
-#ifdef _USEBEVELING_ON
-                half bevel = min(min(_Height, _Width), _BevelLength);
-                half2 d = abs(i.uv) - half2(_Width, _Height) + bevel;
-                half2 outLen = max2( d, 0);
-                dist = pow( pow(outLen.x, _Power) + pow(outLen.y, _Power), 1/_Power) + min(max(d.x, d.y), 0) - bevel;
-#else
                 /*********思路*********
                 精确距离场：
-                外部距离场：length(max2( d, 0))：减去宽度后，分别取XY的正数，然后求距离；这样上下左右计算出到边的距离，其他为到角的距离；
-                内部距离场：min(max(d.x, d.y), 0)：减去宽度后，取负数距离的大值即可；
+                对象限取对称，即可在第一象限直接计算当前点到线段的绝对距离场；
+                然后判断当前点是否在菱形内，对距离场取正负即可；
                 */
-                half2 d = abs(i.uv) - half2(_Width, _Height);
-                dist = length(max2( d, 0))  + min(max(d.x, d.y), 0);
+                half2 v = abs(i.uv);
+                //计算点到线段的距离
+                half2 pv = v - half2(0, _FactorY);
+                half2 pp = half2(_FactorX, -_FactorY);
+                //iq的方法为以菱形边的中点为起点进行投影，因此投影因子为(-1,1)
+                //这里以Y轴上顶点为起点进行投影，投影因子为(0, 1)
+                half projectFactor = clamp(dot(pp, pv)/dot(pp,pp), 0, 1);   
+                dist = length(pv - pp*projectFactor);
+
+                //直接使用直线方程判断点是否位菱形内，即是否在直线的内侧
+                half s = sign(v.x*_FactorY + v.y*_FactorX - _FactorX*_FactorY);
+                dist *= s;
+
+#ifdef _USEBEVELING_ON
+                dist -= _BevelWidth;
 #endif
 
 #ifdef _SHOWDISTANCE_ON
